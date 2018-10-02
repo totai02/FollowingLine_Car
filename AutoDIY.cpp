@@ -1,37 +1,30 @@
-#include "Arduino.h"
-#include <EEPROM.h>
+#include "AutoDIY.h"
 
-#define PWM1 6
-#define DIR1 7
-#define PWM2 5
-#define DIR2 4
-#define SERVO 8
-#define ADC   12
-#define CT1  10
-#define CT2  11
-#define TRIG 3
-#define ECHO 2
+LiquidCrystal lcd(1, 0, A0, A1, A2, A3);   
+Servo servo;
 
 int  ngatu, retrai, rephai, adc[4], ng_adc[4];
 int min_adc[4], max_adc[4];
 int nho, tmp;
 int k, error_p;
 
-// ===== Dinh nghia ========
+void put_text(char *text, int x, int y) {
+  lcd.setCursor(x, y); 
+  lcd.print(text);
+}
 
-void init_adc();
-void set_adc();
-void get_adc();
-void read_adc();
-void read_line(void);
-void clearr(void);
-int middle(int input, int low_limit, int high_limit);
-void do_line(int kp, int kd, int spd);
-void init_pin(void);
-void control_motor(int dc, int dir, int spd);
-int get_distance();
+void lcd_clear() {
+  lcd.clear();
+}
 
-// =========================
+void set_ngatu(int n) {
+  ngatu = n;
+}
+
+int get_ngatu()
+{
+  return ngatu;
+}
 
 void init_adc() {
   pinMode(ADC,INPUT_PULLUP); 
@@ -171,6 +164,13 @@ void init_pin(void) {
   
   pinMode(TRIG,OUTPUT);   
   pinMode(ECHO,INPUT);
+
+  pinMode(11,INPUT_PULLUP);
+  pinMode(12,INPUT_PULLUP);
+  pinMode(9,INPUT_PULLUP);
+
+  servo.attach(SERVO);
+  lcd.begin(16,2);
 }
 
 void control_motor(int dc, int dir, int spd) {
@@ -183,6 +183,7 @@ void control_motor(int dc, int dir, int spd) {
         digitalWrite(DIR1,1);
         analogWrite(PWM1, 255-spd);  
       }
+      break;
     }
     case 1: {
       if (dir == 1) {
@@ -192,6 +193,7 @@ void control_motor(int dc, int dir, int spd) {
         digitalWrite(DIR2,1);
         analogWrite(PWM2, 255-spd);  
       }
+      break;
     }
   }
 }
@@ -210,4 +212,11 @@ int get_distance() {
     distance = int(duration/2/29.412);
     
     return distance;
+}
+
+void display_adc(int a,int b, int c, int d) {
+  lcd.setCursor(0, 1);   lcd.print(a);    
+  lcd.setCursor(4, 1);   lcd.print(b);   
+  lcd.setCursor(8, 1);   lcd.print(c);   
+  lcd.setCursor(12, 1);  lcd.print(d);                    
 }
